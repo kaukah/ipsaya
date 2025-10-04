@@ -6,7 +6,7 @@
     <title>Dynamic IP Tracker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
         :root {
             --primary: #6366f1;
@@ -101,14 +101,15 @@
         }
         
         #currentIpDisplay {
-            font-size: 10vw; /* Ukuran responsif berdasarkan viewport width */
-            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(4rem, 20vw, 12rem); /* Minimum 4rem, ideal 20vw, maksimum 12rem */
+            font-weight: 600;
             color: var(--white);
             letter-spacing: 2px;
-            font-family: 'Courier New', monospace;
             text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            line-height: 1.2;
-            margin: 15px 0;
+            line-height: 1.1;
+            margin: 15px auto;
+            width: 100%;
             word-break: break-all;
         }
         
@@ -206,7 +207,7 @@
         
         .log-ip {
             font-weight: 600;
-            font-family: 'Courier New', monospace;
+            font-family: 'Inter', sans-serif;
         }
         
         .log-total {
@@ -311,7 +312,8 @@
             }
             
             #currentIpDisplay {
-                font-size: 7vh; /* Menggunakan viewport height untuk desktop */
+                font-size: clamp(5rem, 15vh, 12rem); /* Minimum 5rem, ideal 15vh, maksimum 12rem */
+                letter-spacing: 3px;
             }
             
             .section-title {
@@ -341,7 +343,8 @@
             }
             
             #currentIpDisplay {
-                font-size: 12vw; /* Lebih besar di layar kecil */
+                font-size: clamp(3.5rem, 25vw, 10rem); /* Minimum 3.5rem, ideal 25vw, maksimum 10rem */
+                letter-spacing: 1px;
             }
             
             .info-section {
@@ -380,8 +383,7 @@
                 <i class="fas fa-clock"></i>
             </div>
             <div class="info-text">
-                <div class="info-label">Waktu Pertama Akses</div>
-                <div class="info-value" id="firstTimeDisplay">-</div>
+                <div class="info-value" id="firstTimeDisplay">Sejak jam -</div>
             </div>
         </div>
     </div>
@@ -422,13 +424,13 @@
     }
 
     /**
-     * Mengubah timestamp menjadi format jam 12-an (misal: 9:07 PM)
+     * Mengubah timestamp menjadi format jam (misal: 21:13)
      */
     function formatTime(timestamp) {
         return new Date(timestamp).toLocaleTimeString('id-ID', {
-            hour: 'numeric',
+            hour: '2-digit',
             minute: '2-digit',
-            hour12: false // Menggunakan format 24 jam
+            hour12: false
         });
     }
 
@@ -472,7 +474,8 @@
             if (log.firstAccessTime === 0) {
                 log.firstAccessTime = now;
             }
-            firstTimeEl.textContent = formatTime(log.firstAccessTime);
+            // Format: "Sejak jam 21:13"
+            firstTimeEl.textContent = `Sejak jam ${formatTime(log.firstAccessTime)}`;
 
             // 3. Cek perubahan IP
             if (log.currentIP === null) {
