@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic IP Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --radius: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 450px;
+            width: 100%;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 25px 20px;
+            text-align: center;
+            color: var(--white);
+        }
+        
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 25px 20px;
+        }
+        
+        .status-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .status-ok {
+            color: var(--success);
+        }
+        
+        .status-new {
+            color: var(--warning);
+        }
+        
+        .status-error {
+            color: var(--danger);
+        }
+        
+        .status-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        #currentIpDisplay {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .info-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-icon {
+            background: var(--primary);
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .info-text {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+        
+        .log-container {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        #logList {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        #logList li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #logList li:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        .log-ip {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .log-total {
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .footer-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .footer-note i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 100;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 20px 0;
+            color: #94a3b8;
+        }
+        
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+        
+        /* Scrollbar styling */
+        .log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .log-container::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>IP Tracker</h1>
+        <p>Pantau perubahan IP Anda secara real-time</p>
+    </div>
+    
+    <div class="content">
+        <div id="statusMessage" class="status-card">
+            <div class="status-icon">
+                <i class="fas fa-sync-alt fa-spin"></i>
+            </div>
+            <div class="status-text">Memeriksa IP Anda...</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="info-text">
+                <div class="info-label">Waktu Pertama Akses</div>
+                <div class="info-value" id="firstTimeDisplay">-</div>
+            </div>
+        </div>
+        
+        <div class="section-title">
+            <i class="fas fa-history"></i> Riwayat Perubahan IP (Hari Ini)
+        </div>
+        
+        <div class="log-container">
+            <ul id="logList">
+                <li class="empty-state">
+                    <div>
+                        <i class="fas fa-inbox"></i>
+                        <div>Belum ada perubahan IP hari ini</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="footer-note">
+            <i class="fas fa-info-circle"></i> Data disimpan di browser Anda
+        </div>
+    </div>
+</div>
+
+<button class="refresh-btn" id="refreshBtn" title="Periksa IP">
+    <i class="fas fa-sync-alt"></i>
+</button>
+
+<script>
+    const API_URL = 'https://api.ipify.org?format=json';
+
+    // --- Fungsi Utilitas ---
+
+    function todayKey() {
+        const d = new Date();
+        // Format YYYY-MM-DD untuk key penyimpanan harian
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    /**
+     * Mengubah timestamp menjadi format jam 12-an (misal: 9:07 PM)
+     */
+    function formatTime(timestamp) {
+        return new Date(timestamp).toLocaleTimeString('id-ID', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: false // Menggunakan format 24 jam
+        });
+    }
+
+    // --- Core Logic ---
+
+    async function checkAndDisplayIP() {
+        const key = todayKey();
+        let log = JSON.parse(localStorage.getItem(key)) || {
+            firstAccessTime: 0,
+            currentIP: null,
+            changes: []
+        };
+
+        const statusEl = document.getElementById('statusMessage');
+        const firstTimeEl = document.getElementById('firstTimeDisplay');
+        const logListEl = document.getElementById('logList');
+        const refreshBtn = document.getElementById('refreshBtn');
+        
+        // Animasi refresh button
+        refreshBtn.querySelector('i').classList.add('fa-spin');
+        setTimeout(() => {
+            refreshBtn.querySelector('i').classList.remove('fa-spin');
+        }, 1000);
+
+        try {
+            // Update status to checking
+            statusEl.innerHTML = `
+                <div class="status-icon">
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                </div>
+                <div class="status-text">Memeriksa IP Anda...</div>
+            `;
+            statusEl.className = 'status-card';
+            
+            // 1. Ambil IP publik dari API
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            const newIP = data.ip;
+            const now = Date.now();
+
+            // 2. Tentukan waktu pertama akses (sebelum IP berganti hari ini)
+            if (log.firstAccessTime === 0) {
+                log.firstAccessTime = now;
+            }
+            firstTimeEl.textContent = formatTime(log.firstAccessTime);
+
+            // 3. Cek perubahan IP
+            if (log.currentIP === null) {
+                // Kasus pertama kali load hari ini
+                log.currentIP = newIP;
+                statusEl.innerHTML = `
+                    <div class="status-icon status-ok">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="status-text">IP Stabil</div>
+                    <div id="currentIpDisplay">${newIP}</div>
+                `;
+            } else if (newIP !== log.currentIP) {
+                // Kasus IP berubah!
+                const previousIP = log.currentIP;
+                log.currentIP = newIP;
+
+                // Catat perubahan ke log harian
+                log.changes.push({ time: now, ip: newIP, prev: previousIP });
+
+                statusEl.innerHTML = `
+                    <div class="status-icon status-new">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="status-text">IP Berubah!</div>
+                    <div id="currentIpDisplay">${newIP}</div>
+                `;
+            } else {
+                // Kasus IP masih sama, TIDAK ADA UPDATE di log
+                statusEl.innerHTML = `
+                    <div class="status-icon status-ok">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="status-text">IP Stabil</div>
+                    <div id="currentIpDisplay">${newIP}</div>
+                `;
+            }
+
+            // 4. Update Log List
+            renderLog(log.changes, logListEl);
+
+            // 5. Simpan log terbaru
+            localStorage.setItem(key, JSON.stringify(log));
+
+            // Hapus log hari sebelumnya
+            cleanUpOldLogs(key);
+
+        } catch (error) {
+            console.error('Gagal mengambil IP:', error);
+            statusEl.innerHTML = `
+                <div class="status-icon status-error">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="status-text">Gagal memeriksa IP</div>
+            `;
+            statusEl.className = 'status-card';
+        }
+    }
+
+    function renderLog(changes, logListEl) {
+        logListEl.innerHTML = '';
+        if (changes.length === 0) {
+            logListEl.innerHTML = `
+                <li class="empty-state">
+                    <div>
+                        <i class="fas fa-inbox"></i>
+                        <div>Belum ada perubahan IP hari ini</div>
+                    </div>
+                </li>
+            `;
+            return;
+        }
+        
+        // Tampilkan log perubahan, yang terbaru di atas
+        changes.slice().reverse().forEach(entry => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span class="log-time">${formatTime(entry.time)}</span>
+                <span class="log-ip">${entry.ip}</span>
+            `;
+            logListEl.appendChild(listItem);
+        });
+        
+        // Tampilkan total perubahan
+        const totalLi = document.createElement('li');
+        totalLi.className = 'log-total';
+        totalLi.innerHTML = `
+            <span>Total Ganti Hari Ini:</span>
+            <span>${changes.length} kali</span>
+        `;
+        logListEl.appendChild(totalLi);
+    }
+    
+    // Fungsi untuk menghapus data hari-hari sebelumnya
+    function cleanUpOldLogs(currentKey) {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            // Hapus semua key yang terlihat seperti tanggal tapi bukan hari ini
+            if (key.match(/^\d{4}-\d{1,2}-\d{1,2}$/) && key !== currentKey) {
+                localStorage.removeItem(key);
+            }
+        }
+    }
+
+    // Jalankan fungsi saat halaman dimuat
+    checkAndDisplayIP();
+    
+    // Tambahkan event listener untuk tombol refresh
+    document.getElementById('refreshBtn').addEventListener('click', checkAndDisplayIP);
+</script>
+
+</body>
+</html>
